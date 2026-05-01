@@ -7,108 +7,87 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0a0f;
-    --surface: #111118;
-    --surface2: #1a1a24;
-    --border: rgba(255,255,255,0.07);
-    --border2: rgba(255,255,255,0.13);
-    --text: #f0f0f5;
-    --muted: #6b6b80;
-    --accent: #7c6af7;
-    --accent2: #a89af9;
-    --green: #22c98a;
-    --red: #f05a5a;
-    --amber: #f0a840;
-    --blue: #5aabf0;
-    --font-d: 'Syne', sans-serif;
-    --font-m: 'DM Mono', monospace;
+    --bg:#0a0a0f;--surface:#111118;--surface2:#1a1a24;
+    --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+    --text:#f0f0f5;--muted:#6b6b80;--accent:#7c6af7;--accent2:#a89af9;
+    --green:#22c98a;--red:#f05a5a;--amber:#f0a840;--blue:#5aabf0;
+    --font-d:'Syne',sans-serif;--font-m:'DM Mono',monospace;
   }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:var(--bg); color:var(--text); font-family:var(--font-m); font-size:13px; min-height:100vh; }
-  body::before { content:''; position:fixed; inset:0; background-image:linear-gradient(rgba(124,106,247,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(124,106,247,0.03) 1px,transparent 1px); background-size:40px 40px; pointer-events:none; z-index:0; }
-  .app { position:relative; z-index:1; max-width:960px; margin:0 auto; padding:32px 20px 80px; }
-
-  header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:36px; }
-  .logo { font-family:var(--font-d); font-size:24px; font-weight:800; letter-spacing:-0.5px; }
-  .logo span { color:var(--accent2); }
-  .hdr-right { text-align:right; }
-  .hdr-date { color:var(--muted); font-size:11px; line-height:1.9; }
-  .live-dot { display:inline-block; width:5px; height:5px; border-radius:50%; background:var(--green); animation:blink 2s infinite; margin-right:5px; vertical-align:middle; }
-  .live-dot.warn { background:var(--amber); }
-  .live-dot.err { background:var(--red); animation:none; }
-  @keyframes blink { 0%,100%{opacity:1}50%{opacity:0.3} }
-
-  .summary { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:1px; background:var(--border); border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:32px; }
-  .s-cell { background:var(--surface); padding:20px 22px; }
-  .s-cell.main { background:var(--surface2); }
-  .s-lbl { font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
-  .s-val { font-family:var(--font-d); font-size:26px; font-weight:700; letter-spacing:-0.5px; }
-  .s-val.sm { font-size:18px; }
-  .s-sub { font-size:11px; margin-top:4px; color:var(--muted); }
-  .up { color:var(--green); }
-  .dn { color:var(--red); }
-
-  .toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:10px; }
-  .tabs { display:flex; gap:2px; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:3px; }
-  .tab { padding:6px 18px; border-radius:5px; font-size:11px; letter-spacing:0.06em; text-transform:uppercase; cursor:pointer; color:var(--muted); border:none; background:transparent; font-family:var(--font-m); transition:all 0.15s; }
-  .tab.on { background:var(--accent); color:#fff; }
-  .ref-btn { display:flex; align-items:center; gap:6px; padding:7px 14px; border-radius:6px; border:1px solid var(--border2); background:transparent; color:var(--muted); font-family:var(--font-m); font-size:11px; letter-spacing:0.05em; cursor:pointer; transition:all 0.15s; }
-  .ref-btn:hover { color:var(--text); border-color:var(--accent); }
-
-  .pane { display:none; }
-  .pane.on { display:block; }
-
-  .tbl-wrap { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:16px; overflow-x:auto; }
-  table { width:100%; border-collapse:collapse; min-width:560px; }
-  th { font-size:10px; letter-spacing:0.07em; text-transform:uppercase; color:var(--muted); padding:11px 16px; text-align:right; border-bottom:1px solid var(--border); font-weight:400; }
-  th:first-child { text-align:left; }
-  td { padding:13px 16px; text-align:right; border-bottom:1px solid var(--border); vertical-align:middle; }
-  td:first-child { text-align:left; }
-  tr:last-child td { border-bottom:none; }
-  tr:hover td { background:rgba(255,255,255,0.02); }
-  .tk { font-family:var(--font-d); font-size:14px; font-weight:700; }
-  .nm { font-size:10px; color:var(--muted); margin-top:2px; }
-  .badge { display:inline-block; font-size:9px; padding:1px 6px; border-radius:3px; margin-left:5px; vertical-align:middle; font-weight:500; }
-  .b-etf { background:rgba(90,171,240,0.15); color:var(--blue); }
-  .b-act { background:rgba(34,201,138,0.12); color:var(--green); }
-  .b-cry { background:rgba(240,168,64,0.12); color:var(--amber); }
-  .b-sav { background:rgba(107,107,128,0.15); color:var(--muted); }
-  .cur-live { color:var(--text); font-weight:500; }
-  .cur-pru { color:var(--muted); font-size:11px; }
-  .del-btn { background:transparent; border:none; color:var(--muted); cursor:pointer; font-size:16px; padding:2px 6px; line-height:1; transition:color 0.1s; }
-  .del-btn:hover { color:var(--red); }
-
-  .bars { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px 20px; margin-bottom:16px; }
-  .bars-title { font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); margin-bottom:14px; }
-  .bar-row { display:flex; align-items:center; gap:10px; margin-bottom:9px; }
-  .bar-lbl { width:55px; font-size:11px; color:var(--muted); }
-  .bar-track { flex:1; height:7px; background:rgba(255,255,255,0.06); border-radius:4px; overflow:hidden; }
-  .bar-fill { height:100%; border-radius:4px; transition:width 0.6s ease; }
-  .bar-pct { width:38px; text-align:right; font-size:11px; }
-
-  .add-btn { display:inline-block; font-size:11px; letter-spacing:0.05em; color:var(--muted); background:transparent; border:1px dashed var(--border2); border-radius:7px; padding:8px 16px; cursor:pointer; transition:all 0.15s; margin-bottom:16px; font-family:var(--font-m); }
-  .add-btn:hover { color:var(--accent2); border-color:var(--accent); }
-  .add-form { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px 20px; margin-bottom:16px; display:none; }
-  .add-form.on { display:block; }
-  .form-title { font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--accent2); margin-bottom:14px; }
-  .fg { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:12px; }
-  .fi { display:flex; flex-direction:column; gap:4px; flex:1; min-width:100px; }
-  .fi label { font-size:9px; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); }
-  .fi input, .fi select { background:var(--bg); border:1px solid var(--border2); border-radius:6px; padding:8px 10px; color:var(--text); font-family:var(--font-m); font-size:12px; outline:none; transition:border-color 0.15s; }
-  .fi input:focus, .fi select:focus { border-color:var(--accent); }
-  .fi select option { background:var(--surface2); }
-  .form-btns { display:flex; gap:8px; }
-  .btn-ok { padding:8px 18px; background:var(--accent); color:#fff; border:none; border-radius:6px; font-family:var(--font-m); font-size:11px; letter-spacing:0.05em; cursor:pointer; }
-  .btn-ok:hover { background:#9180f9; }
-  .btn-cancel { padding:8px 18px; background:transparent; color:var(--muted); border:1px solid var(--border2); border-radius:6px; font-family:var(--font-m); font-size:11px; cursor:pointer; }
-
-  .spin { animation:spin 1s linear infinite; display:inline-block; }
-  @keyframes spin { to { transform:rotate(360deg); } }
-
-  @media(max-width:600px) {
-    .summary { grid-template-columns:1fr 1fr; }
-    .s-cell.main { grid-column:1/-1; }
-    .s-val { font-size:20px; }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-m);font-size:13px;min-height:100vh;}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(124,106,247,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(124,106,247,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+  .app{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:32px 20px 80px;}
+  header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:36px;}
+  .logo{font-family:var(--font-d);font-size:24px;font-weight:800;letter-spacing:-0.5px;}
+  .logo span{color:var(--accent2);}
+  .hdr-date{color:var(--muted);font-size:11px;line-height:1.9;text-align:right;}
+  .live-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 2s infinite;margin-right:5px;vertical-align:middle;}
+  .live-dot.warn{background:var(--amber);}
+  .live-dot.err{background:var(--red);animation:none;}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+  .summary{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:32px;}
+  .s-cell{background:var(--surface);padding:20px 22px;}
+  .s-cell.main{background:var(--surface2);}
+  .s-lbl{font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+  .s-val{font-family:var(--font-d);font-size:26px;font-weight:700;letter-spacing:-0.5px;}
+  .s-val.sm{font-size:18px;}
+  .s-sub{font-size:11px;margin-top:4px;color:var(--muted);}
+  .up{color:var(--green);}.dn{color:var(--red);}
+  .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+  .tabs{display:flex;gap:2px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:3px;}
+  .tab{padding:6px 18px;border-radius:5px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;color:var(--muted);border:none;background:transparent;font-family:var(--font-m);transition:all 0.15s;}
+  .tab.on{background:var(--accent);color:#fff;}
+  .ref-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-family:var(--font-m);font-size:11px;letter-spacing:0.05em;cursor:pointer;transition:all 0.15s;}
+  .ref-btn:hover{color:var(--text);border-color:var(--accent);}
+  .pane{display:none;}.pane.on{display:block;}
+  .tbl-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;min-width:540px;}
+  th{font-size:10px;letter-spacing:0.07em;text-transform:uppercase;color:var(--muted);padding:11px 16px;text-align:right;border-bottom:1px solid var(--border);font-weight:400;}
+  th:first-child{text-align:left;}
+  td{padding:13px 16px;text-align:right;border-bottom:1px solid var(--border);vertical-align:middle;}
+  td:first-child{text-align:left;}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:rgba(255,255,255,0.02);}
+  .tk{font-family:var(--font-d);font-size:14px;font-weight:700;}
+  .nm{font-size:10px;color:var(--muted);margin-top:2px;}
+  .badge{display:inline-block;font-size:9px;padding:1px 6px;border-radius:3px;margin-left:5px;vertical-align:middle;font-weight:500;}
+  .b-etf{background:rgba(90,171,240,0.15);color:var(--blue);}
+  .b-act{background:rgba(34,201,138,0.12);color:var(--green);}
+  .b-cry{background:rgba(240,168,64,0.12);color:var(--amber);}
+  .b-sav{background:rgba(107,107,128,0.15);color:var(--muted);}
+  .cur-live{color:var(--text);font-weight:500;}
+  .cur-pru{color:var(--muted);font-size:11px;}
+  .del-btn{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:2px 6px;line-height:1;transition:color 0.1s;}
+  .del-btn:hover{color:var(--red);}
+  .bars{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:16px;}
+  .bars-title{font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+  .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+  .bar-lbl{width:60px;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .bar-track{flex:1;height:7px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:4px;transition:width 0.6s ease;}
+  .bar-pct{width:38px;text-align:right;font-size:11px;}
+  .add-btn{display:inline-block;font-size:11px;letter-spacing:0.05em;color:var(--muted);background:transparent;border:1px dashed var(--border2);border-radius:7px;padding:8px 16px;cursor:pointer;transition:all 0.15s;margin-bottom:16px;font-family:var(--font-m);}
+  .add-btn:hover{color:var(--accent2);border-color:var(--accent);}
+  .add-form{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:16px;display:none;}
+  .add-form.on{display:block;}
+  .form-title{font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--accent2);margin-bottom:14px;}
+  .fg{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;}
+  .fi{display:flex;flex-direction:column;gap:4px;flex:1;min-width:100px;}
+  .fi label{font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);}
+  .fi input,.fi select{background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:8px 10px;color:var(--text);font-family:var(--font-m);font-size:12px;outline:none;transition:border-color 0.15s;}
+  .fi input:focus,.fi select:focus{border-color:var(--accent);}
+  .fi select option{background:var(--surface2);}
+  .form-btns{display:flex;gap:8px;}
+  .btn-ok{padding:8px 18px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-family:var(--font-m);font-size:11px;letter-spacing:0.05em;cursor:pointer;}
+  .btn-ok:hover{background:#9180f9;}
+  .btn-cancel{padding:8px 18px;background:transparent;color:var(--muted);border:1px solid var(--border2);border-radius:6px;font-family:var(--font-m);font-size:11px;cursor:pointer;}
+  .spin{animation:spin 1s linear infinite;display:inline-block;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  @media(max-width:600px){
+    .summary{grid-template-columns:1fr 1fr;}
+    .s-cell.main{grid-column:1/-1;}
+    .s-val{font-size:20px;}
+    .tab{padding:6px 10px;font-size:10px;}
   }
 </style>
 </head>
@@ -117,25 +96,23 @@
   <header>
     <div>
       <div class="logo">port<span>folio</span></div>
-      <div style="margin-top:4px;font-size:10px;color:var(--muted);">
+      <div style="margin-top:4px;font-size:10px;color:var(--muted);display:flex;align-items:center;gap:5px;">
         <span class="live-dot" id="dot"></span><span id="status">Chargement...</span>
       </div>
     </div>
-    <div class="hdr-right">
-      <div class="hdr-date" id="hdr-date"></div>
-    </div>
+    <div class="hdr-date" id="hdr-date"></div>
   </header>
 
   <div class="summary">
     <div class="s-cell main">
       <div class="s-lbl">Valeur totale du portefeuille</div>
       <div class="s-val" id="m-total">CHF —</div>
-      <div class="s-sub" id="m-total-sub">—</div>
+      <div class="s-sub" id="m-total-sub"> </div>
     </div>
     <div class="s-cell">
       <div class="s-lbl">P&L latent</div>
       <div class="s-val sm" id="m-pl">—</div>
-      <div class="s-sub" id="m-pl-sub">—</div>
+      <div class="s-sub" id="m-pl-sub"> </div>
     </div>
     <div class="s-cell">
       <div class="s-lbl">Positions</div>
@@ -172,7 +149,7 @@
       <div class="fg">
         <div class="fi"><label>Ticker Finnhub</label><input id="fa-tk" placeholder="AAPL"></div>
         <div class="fi"><label>Nom</label><input id="fa-nm" placeholder="Apple"></div>
-        <div class="fi"><label>Quantité</label><input id="fa-qty" type="number" placeholder="10" step="any"></div>
+        <div class="fi"><label>Quantité (entier)</label><input id="fa-qty" type="number" placeholder="10" step="1"></div>
         <div class="fi"><label>PRU (USD)</label><input id="fa-pru" type="number" placeholder="150.00" step="0.01"></div>
       </div>
       <div class="form-btns">
@@ -217,7 +194,7 @@
       <div class="form-title">Nouvelle crypto</div>
       <div class="fg">
         <div class="fi"><label>ID CoinGecko (ex: bitcoin)</label><input id="fc-id" placeholder="bitcoin"></div>
-        <div class="fi"><label>Symbole</label><input id="fc-nm" placeholder="BTC"></div>
+        <div class="fi"><label>Symbole affiché</label><input id="fc-nm" placeholder="BTC"></div>
         <div class="fi"><label>Quantité</label><input id="fc-qty" type="number" placeholder="0.5" step="any"></div>
         <div class="fi"><label>PRU (USD)</label><input id="fc-pru" type="number" placeholder="80000" step="0.01"></div>
       </div>
@@ -252,36 +229,45 @@
 
 <script>
 const FINNHUB_KEY = 'd7qe35hr01qi8jan3nd0d7qe35hr01qi8jan3ndg';
-const SK = 'pf_gh_v1';
+const SK = 'pf_gh_v2';
 let chf = 0.895;
 
+// PRU crypto converti en USD (depuis CHF du screenshot / taux ~0.895)
 const DEFAULT = {
   act: [
-    {id:1,tk:'BMNR',nm:'Bitmine Immersion',qty:46,pru:21.52,cur:null,d24:null},
-    {id:2,tk:'CLSK',nm:'CleanSpark Inc',qty:290,pru:14.10,cur:null,d24:null},
-    {id:3,tk:'KEEL',nm:'Keel Infrastructure',qty:1.333,pru:1.98,cur:null,d24:null},
-    {id:4,tk:'MARA',nm:'MARA Holdings',qty:166,pru:16.07,cur:null,d24:null},
-    {id:5,tk:'HOOD',nm:'Robinhood Markets',qty:15,pru:73.90,cur:null,d24:null},
-    {id:6,tk:'SBET',nm:'Sharplink Inc',qty:108,pru:21.05,cur:null,d24:null},
+    {id:1, tk:'BMNR', nm:'Bitmine Immersion',  qty:46,   pru:21.52, cur:null, d24:null},
+    {id:2, tk:'CLSK', nm:'CleanSpark Inc',      qty:290,  pru:14.10, cur:null, d24:null},
+    {id:3, tk:'KEEL', nm:'Keel Infrastructure', qty:1333, pru:1.98,  cur:null, d24:null},
+    {id:4, tk:'MARA', nm:'MARA Holdings',       qty:166,  pru:16.07, cur:null, d24:null},
+    {id:5, tk:'HOOD', nm:'Robinhood Markets',   qty:15,   pru:73.90, cur:null, d24:null},
+    {id:6, tk:'SBET', nm:'Sharplink Inc',       qty:108,  pru:21.05, cur:null, d24:null},
   ],
   etf: [
-    {id:7,tk:'SWDA',nm:'iShares Core MSCI World',qty:36,pru:121.60,cur:null,d24:null},
+    {id:7, tk:'SWDA', nm:'iShares Core MSCI World', qty:36, pru:121.60, cur:null, d24:null},
   ],
-  cry: [],
-  sav: []
+  cry: [
+    {id:10, cgId:'ethereum',                     nm:'ETH',    qty:0.44066756,    pru:1628.07, cur:null, d24:null},
+    {id:11, cgId:'bitcoin',                      nm:'BTC',    qty:0.01135997,    pru:68177.0, cur:null, d24:null},
+    {id:12, cgId:'fetch-ai',                     nm:'FET',    qty:1310.35149559, pru:1.49,    cur:null, d24:null},
+    {id:13, cgId:'render-token',                 nm:'RENDER', qty:147.03924208,  pru:14.03,   cur:null, d24:null},
+    {id:14, cgId:'ankr',                         nm:'ANKR',   qty:34549.42483672,pru:0.031,   cur:null, d24:null},
+    {id:15, cgId:'io-net',                       nm:'IO',     qty:654.16779162,  pru:2.11,    cur:null, d24:null},
+  ],
+  sav: [
+    {id:20, nm:'Compte bancaire', amt:4800, rate:0}
+  ]
 };
 
 let S = (()=>{ try{ const d=localStorage.getItem(SK); return d?JSON.parse(d):JSON.parse(JSON.stringify(DEFAULT)); }catch(e){ return JSON.parse(JSON.stringify(DEFAULT)); } })();
 const save = () => { try{ localStorage.setItem(SK,JSON.stringify(S)); }catch(e){} };
 
-function showTab(type, el) {
+function showTab(type,el){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
   document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
   el.classList.add('on');
   document.getElementById('pane-'+type).classList.add('on');
 }
 function toggleForm(id){ document.getElementById(id).classList.toggle('on'); }
-
 function g(id){ return document.getElementById(id); }
 function fmt(n,d=2){ if(n==null||isNaN(n)) return '—'; return n.toLocaleString('fr-CH',{minimumFractionDigits:d,maximumFractionDigits:d}); }
 function fchf(n){ if(n==null||isNaN(n)) return '—'; return 'CHF '+fmt(n,0); }
@@ -289,25 +275,22 @@ function cls(n){ return n>0?'up':n<0?'dn':''; }
 function sgn(n){ return n>0?'+':''; }
 
 function addPos(type){
-  let p;
   if(type==='act'||type==='etf'){
-    const prefix = type==='act'?'fa':'fe';
-    const tk=g(prefix+'-tk').value.toUpperCase().trim();
-    const nm=g(prefix+'-nm').value.trim();
-    const qty=parseFloat(g(prefix+'-qty').value);
-    const pru=parseFloat(g(prefix+'-pru').value);
+    const px=type==='act'?'fa':'fe';
+    const tk=g(px+'-tk').value.toUpperCase().trim();
+    const nm=g(px+'-nm').value.trim();
+    const qty=parseInt(g(px+'-qty').value,10);
+    const pru=parseFloat(g(px+'-pru').value);
     if(!tk||!nm||isNaN(qty)||isNaN(pru)) return;
-    p={id:Date.now(),tk,nm,qty,pru,cur:null,d24:null};
-    S[type].push(p);
-    [prefix+'-tk',prefix+'-nm',prefix+'-qty',prefix+'-pru'].forEach(i=>g(i).value='');
+    S[type].push({id:Date.now(),tk,nm,qty,pru,cur:null,d24:null});
+    [px+'-tk',px+'-nm',px+'-qty',px+'-pru'].forEach(i=>g(i).value='');
   } else if(type==='cry'){
-    const id=g('fc-id').value.toLowerCase().trim();
+    const cgId=g('fc-id').value.toLowerCase().trim();
     const nm=g('fc-nm').value.toUpperCase().trim();
     const qty=parseFloat(g('fc-qty').value);
     const pru=parseFloat(g('fc-pru').value);
-    if(!id||!nm||isNaN(qty)||isNaN(pru)) return;
-    p={id:Date.now(),cgId:id,nm,qty,pru,cur:null,d24:null};
-    S.cry.push(p);
+    if(!cgId||!nm||isNaN(qty)||isNaN(pru)) return;
+    S.cry.push({id:Date.now(),cgId,nm,qty,pru,cur:null,d24:null});
     ['fc-id','fc-nm','fc-qty','fc-pru'].forEach(i=>g(i).value='');
   } else {
     const nm=g('fs-nm').value.trim();
@@ -323,17 +306,17 @@ function addPos(type){
 
 function del(type,id){ S[type]=S[type].filter(p=>p.id!==id); save(); render(); }
 
-function stockRow(p, type){
+function stockRow(p,type){
   const cur=p.cur??p.pru;
   const val=p.qty*cur*chf;
   const pl=(cur-p.pru)*p.qty*chf;
   const plp=(cur-p.pru)/p.pru*100;
   const badge=type==='etf'?'<span class="badge b-etf">ETF</span>':'<span class="badge b-act">Action</span>';
-  const d24=p.d24!=null?`<span class="${cls(p.d24)}" style="font-size:10px;">${sgn(p.d24)}${fmt(p.d24,1)}%</span>`:'';
+  const d24=p.d24!=null?`<span class="${cls(p.d24)}" style="font-size:10px">${sgn(p.d24)}${fmt(p.d24,1)}%</span>`:'';
   const curStr=p.cur!=null?`<span class="cur-live">$${fmt(p.cur)}</span>`:`<span class="cur-pru">PRU</span>`;
   return `<tr>
     <td><div class="tk">${p.tk}${badge}</div><div class="nm">${p.nm} ${d24}</div></td>
-    <td>${fmt(p.qty,p.qty%1===0?0:3)}</td>
+    <td>${fmt(p.qty,0)}</td>
     <td style="color:var(--muted)">$${fmt(p.pru)}</td>
     <td>${curStr}</td>
     <td>${fchf(val)}</td>
@@ -342,139 +325,135 @@ function stockRow(p, type){
   </tr>`;
 }
 
-function drawBars(positions, bid, colors){
+function cryptoRow(p){
+  const cur=p.cur??p.pru;
+  const val=p.qty*cur*chf;
+  const pl=(cur-p.pru)*p.qty*chf;
+  const plp=(cur-p.pru)/p.pru*100;
+  const d24=p.d24!=null?`<span class="${cls(p.d24)}" style="font-size:10px">${sgn(p.d24)}${fmt(p.d24,1)}%</span>`:'';
+  const curStr=p.cur!=null?`<span class="cur-live">$${fmt(p.cur,4)}</span>`:`<span class="cur-pru">PRU</span>`;
+  const qtyFmt=p.qty>=1?fmt(p.qty,4):fmt(p.qty,6);
+  return `<tr>
+    <td><div class="tk">${p.nm}<span class="badge b-cry">Crypto</span></div><div class="nm">${p.cgId} ${d24}</div></td>
+    <td>${qtyFmt}</td>
+    <td style="color:var(--muted)">$${fmt(p.pru,4)}</td>
+    <td>${curStr}</td>
+    <td>${fchf(val)}</td>
+    <td class="${cls(pl)}">${sgn(pl)}${fchf(pl)}<br><span style="font-size:10px">${sgn(plp)}${fmt(plp,1)}%</span></td>
+    <td><button class="del-btn" onclick="del('cry',${p.id})">×</button></td>
+  </tr>`;
+}
+
+function drawBars(positions,bid,colors){
   const el=g(bid);
-  if(!positions.length){ el.style.display='none'; return; }
+  if(!positions.length){el.style.display='none';return;}
   el.style.display='block';
   const total=positions.reduce((s,p)=>s+p.qty*(p.cur??p.pru),0);
   el.innerHTML='<div class="bars-title">Répartition</div>'+positions.map((p,i)=>{
     const pct=total>0?p.qty*(p.cur??p.pru)/total*100:0;
-    return `<div class="bar-row"><div class="bar-lbl">${p.tk||p.nm}</div><div class="bar-track"><div class="bar-fill" style="width:${pct.toFixed(1)}%;background:${colors[i%colors.length]}"></div></div><div class="bar-pct ${cls(pct-20)}">${fmt(pct,1)}%</div></div>`;
+    return `<div class="bar-row"><div class="bar-lbl">${p.tk||p.nm}</div><div class="bar-track"><div class="bar-fill" style="width:${pct.toFixed(1)}%;background:${colors[i%colors.length]}"></div></div><div class="bar-pct">${fmt(pct,1)}%</div></div>`;
   }).join('');
 }
+
+function empty(cols){ return `<tr><td colspan="${cols}" style="text-align:center;color:var(--muted);padding:24px;font-size:12px">Aucune position</td></tr>`; }
 
 function render(){
   g('body-act').innerHTML=S.act.map(p=>stockRow(p,'act')).join('')||empty(7);
   g('body-etf').innerHTML=S.etf.map(p=>stockRow(p,'etf')).join('')||empty(7);
-  g('body-cry').innerHTML=S.cry.map(p=>{
-    const cur=p.cur??p.pru;
-    const val=p.qty*cur*chf;
-    const pl=(cur-p.pru)*p.qty*chf;
-    const plp=(cur-p.pru)/p.pru*100;
-    const d24=p.d24!=null?`<span class="${cls(p.d24)}" style="font-size:10px">${sgn(p.d24)}${fmt(p.d24,1)}%</span>`:'';
-    const curStr=p.cur!=null?`<span class="cur-live">$${fmt(p.cur,2)}</span>`:`<span class="cur-pru">PRU</span>`;
-    return `<tr>
-      <td><div class="tk">${p.nm}<span class="badge b-cry">Crypto</span></div><div class="nm">${p.cgId||''} ${d24}</div></td>
-      <td>${fmt(p.qty,6)}</td>
-      <td style="color:var(--muted)">$${fmt(p.pru,2)}</td>
-      <td>${curStr}</td>
-      <td>${fchf(val)}</td>
-      <td class="${cls(pl)}">${sgn(pl)}${fchf(pl)}<br><span style="font-size:10px">${sgn(plp)}${fmt(plp,1)}%</span></td>
-      <td><button class="del-btn" onclick="del('cry',${p.id})">×</button></td>
-    </tr>`;
-  }).join('')||empty(7);
+  g('body-cry').innerHTML=S.cry.map(p=>cryptoRow(p)).join('')||empty(7);
   g('body-sav').innerHTML=S.sav.map(p=>`<tr>
     <td><div class="tk">${p.nm}<span class="badge b-sav">Épargne</span></div></td>
     <td>${fchf(p.amt)}</td>
-    <td class="up">${fmt(p.rate,2)}%</td>
-    <td class="up">+${fchf(p.amt*p.rate/100)}</td>
+    <td class="${p.rate>0?'up':''}"">${fmt(p.rate,2)}%</td>
+    <td class="${p.rate>0?'up':''}">${p.rate>0?'+'+fchf(p.amt*p.rate/100):'—'}</td>
     <td><button class="del-btn" onclick="del('sav',${p.id})">×</button></td>
   </tr>`).join('')||empty(5);
 
   drawBars(S.act,'bars-act',['#5aabf0','#22c98a','#f0a840','#f05a5a','#a89af9','#f07890']);
   drawBars(S.etf,'bars-etf',['#22c98a','#5aabf0','#f0a840']);
-  drawBars(S.cry,'bars-cry',['#f0a840','#f05a5a','#7c6af7','#22c98a']);
+  drawBars(S.cry,'bars-cry',['#f0a840','#5aabf0','#22c98a','#f05a5a','#a89af9','#f07890','#d4a0f0']);
 
-  const all=[...S.act,...S.etf,...S.cry];
-  const totVal=all.reduce((s,p)=>s+p.qty*(p.cur??p.pru)*chf,0);
-  const totBuy=all.reduce((s,p)=>s+p.qty*p.pru*chf,0);
+  const allInv=[...S.act,...S.etf,...S.cry];
+  const totVal=allInv.reduce((s,p)=>s+p.qty*(p.cur??p.pru)*chf,0);
+  const totBuy=allInv.reduce((s,p)=>s+p.qty*p.pru*chf,0);
   const savVal=S.sav.reduce((s,p)=>s+p.amt,0);
   const grand=totVal+savVal;
   const pl=totVal-totBuy;
   const plp=totBuy>0?pl/totBuy*100:0;
-  const d24=all.filter(p=>p.d24!=null).reduce((s,p)=>s+p.qty*(p.cur??p.pru)*chf*(p.d24/100),0);
+  const d24=allInv.filter(p=>p.d24!=null).reduce((s,p)=>s+p.qty*(p.cur??p.pru)*chf*(p.d24/100),0);
 
   g('m-total').textContent=fchf(grand);
   const mpl=g('m-pl');
   mpl.textContent=(pl>=0?'+':'')+fchf(pl);
   mpl.className='s-val sm '+cls(pl);
   g('m-pl-sub').textContent=`${sgn(plp)}${fmt(plp,1)}% vs achat`;
-  g('m-count').textContent=S.act.length+S.etf.length+S.cry.length+S.sav.length;
+  g('m-count').textContent=allInv.length+S.sav.length;
   const m24=g('m-24h');
-  m24.textContent=all.some(p=>p.d24!=null)?(sgn(d24)+fchf(d24)):'—';
+  m24.textContent=allInv.some(p=>p.d24!=null)?(sgn(d24)+fchf(d24)):'—';
   m24.className='s-val sm '+cls(d24);
 }
 
-function empty(cols){ return `<tr><td colspan="${cols}" style="text-align:center;color:var(--muted);padding:24px;font-size:12px">Aucune position</td></tr>`; }
-
 async function fetchFinnhub(ticker){
-  try {
+  try{
     const r=await fetch(`https://finnhub.io/api/v1/quote?symbol=${ticker}&token=${FINNHUB_KEY}`);
     if(!r.ok) return null;
     const d=await r.json();
     if(!d.c||d.c===0) return null;
-    return { cur: d.c, d24: d.pc>0?(d.c-d.pc)/d.pc*100:null };
-  } catch(e){ return null; }
+    return {cur:d.c, d24:d.pc>0?(d.c-d.pc)/d.pc*100:null};
+  }catch(e){return null;}
 }
 
 async function fetchCrypto(ids){
-  try {
+  try{
     const r=await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
     if(!r.ok) return null;
     return await r.json();
-  } catch(e){ return null; }
+  }catch(e){return null;}
 }
 
 async function fetchChf(){
-  try {
+  try{
     const r=await fetch('https://api.frankfurter.app/latest?from=USD&to=CHF');
-    if(r.ok){ const d=await r.json(); chf=d.rates.CHF; }
-  } catch(e){}
+    if(r.ok){const d=await r.json();chf=d.rates.CHF;}
+  }catch(e){}
 }
 
 async function refreshAll(){
-  const dot=g('dot');
-  const sic=g('spin-ic');
+  const dot=g('dot'), sic=g('spin-ic');
   sic.classList.add('spin');
   dot.className='live-dot warn';
   g('status').textContent='Mise à jour...';
 
   await fetchChf();
 
-  const stockPositions=[...S.act,...S.etf];
-  const tickers=[...new Set(stockPositions.map(p=>p.tk))];
-
-  const results = await Promise.all(tickers.map(tk=>fetchFinnhub(tk).then(r=>({tk,r}))));
-  results.forEach(({tk,r})=>{
-    if(r){ stockPositions.filter(p=>p.tk===tk).forEach(p=>{ p.cur=r.cur; p.d24=r.d24; }); }
+  // Actions + ETF via Finnhub
+  const stocks=[...S.act,...S.etf];
+  const tickers=[...new Set(stocks.map(p=>p.tk))];
+  const sRes=await Promise.all(tickers.map(tk=>fetchFinnhub(tk).then(r=>({tk,r}))));
+  sRes.forEach(({tk,r})=>{
+    if(r) stocks.filter(p=>p.tk===tk).forEach(p=>{p.cur=r.cur;p.d24=r.d24;});
   });
 
+  // Crypto via CoinGecko
   if(S.cry.length>0){
     const ids=[...new Set(S.cry.map(p=>p.cgId))].join(',');
-    const cData=await fetchCrypto(ids);
-    if(cData){ S.cry.forEach(p=>{ const d=cData[p.cgId]; if(d){ p.cur=d.usd; p.d24=d.usd_24h_change; } }); }
+    const cd=await fetchCrypto(ids);
+    if(cd) S.cry.forEach(p=>{const d=cd[p.cgId];if(d){p.cur=d.usd;p.d24=d.usd_24h_change;}});
   }
 
-  save();
-  render();
+  save(); render();
 
   const now=new Date();
   const ts=now.toLocaleTimeString('fr-CH',{hour:'2-digit',minute:'2-digit'});
   g('m-upd').textContent=`màj ${ts}`;
 
-  const allHavePrices=[...S.act,...S.etf,...S.cry].every(p=>p.cur!=null);
-  const anyPrice=[...S.act,...S.etf,...S.cry].some(p=>p.cur!=null);
+  const allInv=[...S.act,...S.etf,...S.cry];
+  const allOk=allInv.every(p=>p.cur!=null);
+  const anyOk=allInv.some(p=>p.cur!=null);
 
-  if(allHavePrices||[...S.act,...S.etf,...S.cry].length===0){
-    dot.className='live-dot';
-    g('status').textContent=`Prix live — ${ts}`;
-  } else if(anyPrice){
-    dot.className='live-dot warn';
-    g('status').textContent=`Prix partiels — ${ts}`;
-  } else {
-    dot.className='live-dot err';
-    g('status').textContent='Erreur — prix indisponibles';
-  }
+  if(allOk||allInv.length===0){dot.className='live-dot';g('status').textContent=`Prix live — ${ts}`;}
+  else if(anyOk){dot.className='live-dot warn';g('status').textContent=`Prix partiels — ${ts}`;}
+  else{dot.className='live-dot err';g('status').textContent='Erreur — affichage au PRU';}
   sic.classList.remove('spin');
 }
 
