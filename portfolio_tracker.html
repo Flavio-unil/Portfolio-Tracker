@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a24;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #f0f0f5;
+    --muted: #6b6b80;
+    --accent: #7c6af7;
+    --accent2: #a89af9;
+    --green: #22c98a;
+    --red: #f05a5a;
+    --amber: #f0a840;
+    --font-display: 'Syne', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,106,247,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,106,247,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 32px 20px 60px; }
+
+  /* Header */
+  header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; }
+  .logo { font-family: var(--font-display); font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+  .logo span { color: var(--accent2); }
+  .header-date { color: var(--muted); font-size: 11px; text-align: right; line-height: 1.8; }
+
+  /* Summary strip */
+  .summary { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 32px; }
+  .summary-cell { background: var(--surface); padding: 20px 24px; }
+  .summary-cell.main { background: var(--surface2); }
+  .s-label { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .s-value { font-family: var(--font-display); font-size: 28px; font-weight: 700; letter-spacing: -1px; }
+  .s-value.sm { font-size: 20px; }
+  .s-delta { font-size: 11px; margin-top: 4px; }
+  .up { color: var(--green); }
+  .dn { color: var(--red); }
+  .neu { color: var(--muted); }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 2px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 3px; margin-bottom: 24px; width: fit-content; }
+  .tab { padding: 6px 16px; border-radius: 5px; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; color: var(--muted); border: none; background: transparent; font-family: var(--font-mono); transition: all 0.15s; }
+  .tab.active { background: var(--accent); color: #fff; }
+
+  /* Positions table */
+  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 24px; }
+  .table-header { display: grid; padding: 12px 20px; border-bottom: 1px solid var(--border); color: var(--muted); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .table-header.actions-grid { grid-template-columns: 1fr 80px 90px 90px 80px 80px 40px; }
+  .table-header.crypto-grid { grid-template-columns: 1fr 80px 90px 90px 80px 80px 40px; }
+  .table-header.epargne-grid { grid-template-columns: 1fr 100px 100px 100px 40px; }
+
+  .position { display: grid; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s; }
+  .position:last-child { border-bottom: none; }
+  .position:hover { background: var(--surface2); }
+  .position.actions-grid { grid-template-columns: 1fr 80px 90px 90px 80px 80px 40px; }
+  .position.crypto-grid { grid-template-columns: 1fr 80px 90px 90px 80px 80px 40px; }
+  .position.epargne-grid { grid-template-columns: 1fr 100px 100px 100px 40px; }
+
+  .pos-name { font-family: var(--font-display); font-size: 14px; font-weight: 700; }
+  .pos-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .pos-badge { display: inline-block; font-size: 9px; letter-spacing: 0.05em; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; font-weight: 500; }
+  .badge-etf { background: rgba(124,106,247,0.15); color: var(--accent2); }
+  .badge-action { background: rgba(34,201,138,0.12); color: var(--green); }
+  .badge-crypto { background: rgba(240,168,64,0.12); color: var(--amber); }
+  .badge-epargne { background: rgba(107,107,128,0.15); color: var(--muted); }
+
+  .cell { font-size: 12px; }
+  .cell.mono { font-family: var(--font-mono); }
+  .cell.right { text-align: right; }
+  .cell.bold { font-weight: 500; }
+
+  .dot-live { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--green); animation: blink 2s infinite; margin-right: 4px; vertical-align: middle; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* Add form */
+  .add-section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 24px; }
+  .add-title { font-family: var(--font-display); font-size: 13px; font-weight: 700; margin-bottom: 16px; color: var(--accent2); letter-spacing: 0.02em; }
+  .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 12px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-label { font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  input, select {
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 8px 10px;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+  input:focus, select:focus { border-color: var(--accent); }
+  select option { background: var(--surface2); }
+
+  .btn { padding: 9px 20px; border-radius: 6px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; border: none; transition: all 0.15s; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #9180f9; }
+  .btn-ghost { background: transparent; border: 1px solid var(--border2); color: var(--muted); }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent2); }
+  .btn-danger { background: transparent; border: 1px solid transparent; color: var(--red); font-size: 16px; padding: 4px 8px; }
+  .btn-danger:hover { color: #f07070; }
+
+  /* Allocation chart */
+  .alloc-section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .alloc-title { font-family: var(--font-display); font-size: 13px; font-weight: 700; margin-bottom: 16px; }
+  .alloc-bars { display: flex; flex-direction: column; gap: 10px; }
+  .alloc-row { display: flex; align-items: center; gap: 12px; }
+  .alloc-name { width: 80px; font-size: 11px; color: var(--muted); }
+  .alloc-track { flex: 1; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; }
+  .alloc-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+  .alloc-pct { width: 40px; text-align: right; font-size: 11px; font-weight: 500; }
+
+  /* Loading spinner */
+  .price-loading { color: var(--muted); font-size: 10px; }
+
+  /* Tab content */
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* Empty state */
+  .empty { padding: 40px 20px; text-align: center; color: var(--muted); font-size: 12px; }
+
+  .section-actions { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 12px; }
+
+  .refresh-btn { display: flex; align-items: center; gap: 6px; }
+  .spin { animation: spin 1s linear infinite; display: inline-block; }
+  @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+  @media (max-width: 600px) {
+    .summary { grid-template-columns: 1fr 1fr; }
+    .summary-cell.main { grid-column: 1 / -1; }
+    .s-value { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <div class="logo">port<span>folio</span></div>
+      <div style="color:var(--muted);font-size:10px;margin-top:4px;"><span class="dot-live"></span>prix live via CoinGecko &amp; Yahoo</div>
+    </div>
+    <div class="header-date" id="live-date"></div>
+  </header>
+
+  <!-- Summary -->
+  <div class="summary">
+    <div class="summary-cell main">
+      <div class="s-label">Valeur totale du portefeuille</div>
+      <div class="s-value" id="total-value">CHF —</div>
+      <div class="s-delta" id="total-delta">—</div>
+    </div>
+    <div class="summary-cell">
+      <div class="s-label">P&amp;L latent</div>
+      <div class="s-value sm" id="total-pl">—</div>
+      <div class="s-delta" id="total-pl-pct">—</div>
+    </div>
+    <div class="summary-cell">
+      <div class="s-label">Positions</div>
+      <div class="s-value sm" id="count-pos">—</div>
+      <div class="s-delta neu" id="last-update">jamais</div>
+    </div>
+    <div class="summary-cell">
+      <div class="s-label">Variation 24h</div>
+      <div class="s-value sm" id="day-change">—</div>
+      <div class="s-delta neu">estimation</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('actions')">Actions / ETFs</button>
+      <button class="tab" onclick="showTab('crypto')">Crypto</button>
+      <button class="tab" onclick="showTab('epargne')">Épargne</button>
+    </div>
+    <button class="btn btn-ghost refresh-btn" onclick="refreshPrices()" id="refresh-btn">
+      <span id="refresh-icon">↻</span> Actualiser les prix
+    </button>
+  </div>
+
+  <!-- ACTIONS TAB -->
+  <div id="tab-actions" class="tab-content active">
+    <div class="table-wrap" id="actions-table">
+      <div class="table-header actions-grid">
+        <span>Titre</span><span class="right">Quantité</span><span class="right">Prix achat</span><span class="right">Prix actuel</span><span class="right">Valeur</span><span class="right">P&amp;L</span><span></span>
+      </div>
+      <div id="actions-rows"></div>
+    </div>
+    <button class="btn btn-ghost" onclick="toggleAddForm('actions')" style="margin-bottom:20px;">+ Ajouter une position</button>
+    <div id="add-actions" class="add-section" style="display:none;">
+      <div class="add-title">— Nouvelle position actions / ETF</div>
+      <div class="form-row">
+        <div class="form-group"><div class="form-label">Ticker (ex: AAPL)</div><input id="a-ticker" placeholder="MSFT" /></div>
+        <div class="form-group"><div class="form-label">Nom</div><input id="a-name" placeholder="Microsoft" /></div>
+        <div class="form-group"><div class="form-label">Type</div>
+          <select id="a-type"><option value="action">Action</option><option value="etf">ETF</option></select>
+        </div>
+        <div class="form-group"><div class="form-label">Quantité</div><input id="a-qty" type="number" placeholder="10" /></div>
+        <div class="form-group"><div class="form-label">Prix d'achat (USD)</div><input id="a-price" type="number" placeholder="420.00" /></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-primary" onclick="addPosition('actions')">Ajouter</button>
+        <button class="btn btn-ghost" onclick="toggleAddForm('actions')">Annuler</button>
+      </div>
+    </div>
+    <div class="alloc-section" style="margin-top:0;">
+      <div class="alloc-title">Répartition actions / ETFs</div>
+      <div class="alloc-bars" id="alloc-actions"></div>
+    </div>
+  </div>
+
+  <!-- CRYPTO TAB -->
+  <div id="tab-crypto" class="tab-content">
+    <div class="table-wrap">
+      <div class="table-header crypto-grid">
+        <span>Asset</span><span class="right">Quantité</span><span class="right">Prix achat</span><span class="right">Prix actuel</span><span class="right">Valeur</span><span class="right">P&amp;L</span><span></span>
+      </div>
+      <div id="crypto-rows"></div>
+    </div>
+    <button class="btn btn-ghost" onclick="toggleAddForm('crypto')" style="margin-bottom:20px;">+ Ajouter une position</button>
+    <div id="add-crypto" class="add-section" style="display:none;">
+      <div class="add-title">— Nouvelle position crypto</div>
+      <div class="form-row">
+        <div class="form-group"><div class="form-label">Ticker CoinGecko (ex: bitcoin)</div><input id="c-ticker" placeholder="bitcoin" /></div>
+        <div class="form-group"><div class="form-label">Symbole affiché</div><input id="c-name" placeholder="BTC" /></div>
+        <div class="form-group"><div class="form-label">Quantité</div><input id="c-qty" type="number" placeholder="0.5" step="any" /></div>
+        <div class="form-group"><div class="form-label">Prix d'achat (USD)</div><input id="c-price" type="number" placeholder="80000" /></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-primary" onclick="addPosition('crypto')">Ajouter</button>
+        <button class="btn btn-ghost" onclick="toggleAddForm('crypto')">Annuler</button>
+      </div>
+    </div>
+    <div class="alloc-section" style="margin-top:0;">
+      <div class="alloc-title">Répartition crypto</div>
+      <div class="alloc-bars" id="alloc-crypto"></div>
+    </div>
+  </div>
+
+  <!-- ÉPARGNE TAB -->
+  <div id="tab-epargne" class="tab-content">
+    <div class="table-wrap">
+      <div class="table-header epargne-grid">
+        <span>Compte</span><span class="right">Montant (CHF)</span><span class="right">Taux annuel</span><span class="right">Intérêts estimés</span><span></span>
+      </div>
+      <div id="epargne-rows"></div>
+    </div>
+    <button class="btn btn-ghost" onclick="toggleAddForm('epargne')" style="margin-bottom:20px;">+ Ajouter un compte</button>
+    <div id="add-epargne" class="add-section" style="display:none;">
+      <div class="add-title">— Nouveau compte épargne</div>
+      <div class="form-row">
+        <div class="form-group"><div class="form-label">Nom du compte</div><input id="e-name" placeholder="Compte épargne UBS" /></div>
+        <div class="form-group"><div class="form-label">Montant (CHF)</div><input id="e-amount" type="number" placeholder="10000" /></div>
+        <div class="form-group"><div class="form-label">Taux d'intérêt (%)</div><input id="e-rate" type="number" placeholder="1.5" step="0.01" /></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-primary" onclick="addPosition('epargne')">Ajouter</button>
+        <button class="btn btn-ghost" onclick="toggleAddForm('epargne')">Annuler</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── State ───────────────────────────────────────────────────────────────────
+const KEY = 'pf_tracker_v2';
+let state = { actions: [], crypto: [], epargne: [], prices: {}, chf_usd: 0.90, updated: null };
+
+function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
+function load() {
+  const d = localStorage.getItem(KEY);
+  if (d) { try { state = {...state, ...JSON.parse(d)}; } catch(e){} }
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+load();
+updateDate();
+render();
+refreshPrices();
+setInterval(updateDate, 60000);
+
+function updateDate() {
+  const now = new Date();
+  document.getElementById('live-date').innerHTML =
+    now.toLocaleDateString('fr-CH', {weekday:'long', year:'numeric', month:'long', day:'numeric'}) + '<br>' +
+    now.toLocaleTimeString('fr-CH', {hour:'2-digit', minute:'2-digit'});
+}
+
+// ─── Tabs ─────────────────────────────────────────────────────────────────────
+function showTab(t) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + t).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ─── Add / Remove ─────────────────────────────────────────────────────────────
+function toggleAddForm(type) {
+  const el = document.getElementById('add-' + type);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function addPosition(type) {
+  if (type === 'actions') {
+    const ticker = document.getElementById('a-ticker').value.toUpperCase().trim();
+    const name = document.getElementById('a-name').value.trim();
+    const kind = document.getElementById('a-type').value;
+    const qty = parseFloat(document.getElementById('a-qty').value);
+    const price = parseFloat(document.getElementById('a-price').value);
+    if (!ticker || !name || isNaN(qty) || isNaN(price)) return alert('Remplis tous les champs');
+    state.actions.push({ id: Date.now(), ticker, name, kind, qty, buyPrice: price, currentPrice: price });
+    document.getElementById('a-ticker').value=''; document.getElementById('a-name').value='';
+    document.getElementById('a-qty').value=''; document.getElementById('a-price').value='';
+  } else if (type === 'crypto') {
+    const ticker = document.getElementById('c-ticker').value.toLowerCase().trim();
+    const name = document.getElementById('c-name').value.toUpperCase().trim();
+    const qty = parseFloat(document.getElementById('c-qty').value);
+    const price = parseFloat(document.getElementById('c-price').value);
+    if (!ticker || !name || isNaN(qty) || isNaN(price)) return alert('Remplis tous les champs');
+    state.crypto.push({ id: Date.now(), ticker, name, qty, buyPrice: price, currentPrice: price });
+    document.getElementById('c-ticker').value=''; document.getElementById('c-name').value='';
+    document.getElementById('c-qty').value=''; document.getElementById('c-price').value='';
+  } else if (type === 'epargne') {
+    const name = document.getElementById('e-name').value.trim();
+    const amount = parseFloat(document.getElementById('e-amount').value);
+    const rate = parseFloat(document.getElementById('e-rate').value);
+    if (!name || isNaN(amount) || isNaN(rate)) return alert('Remplis tous les champs');
+    state.epargne.push({ id: Date.now(), name, amount, rate });
+    document.getElementById('e-name').value=''; document.getElementById('e-amount').value='';
+    document.getElementById('e-rate').value='';
+  }
+  toggleAddForm(type);
+  save();
+  render();
+  refreshPrices();
+}
+
+function removePosition(type, id) {
+  state[type] = state[type].filter(p => p.id !== id);
+  save(); render();
+}
+
+// ─── Price Fetching ───────────────────────────────────────────────────────────
+async function refreshPrices() {
+  const btn = document.getElementById('refresh-btn');
+  const icon = document.getElementById('refresh-icon');
+  icon.classList.add('spin');
+  btn.disabled = true;
+
+  try {
+    // Fetch CHF/USD rate
+    const fxRes = await fetch('https://api.frankfurter.app/latest?from=USD&to=CHF');
+    if (fxRes.ok) {
+      const fxData = await fxRes.json();
+      state.chf_usd = fxData.rates.CHF;
+    }
+
+    // Crypto prices from CoinGecko
+    if (state.crypto.length > 0) {
+      const ids = [...new Set(state.crypto.map(c => c.ticker))].join(',');
+      const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
+      if (res.ok) {
+        const data = await res.json();
+        state.crypto.forEach(c => {
+          if (data[c.ticker]) {
+            c.currentPrice = data[c.ticker].usd;
+            c.change24h = data[c.ticker].usd_24h_change;
+          }
+        });
+      }
+    }
+
+    // Stock prices from Yahoo Finance (via allorigins proxy)
+    if (state.actions.length > 0) {
+      for (const pos of state.actions) {
+        try {
+          const url = `https://query1.finance.yahoo.com/v8/finance/chart/${pos.ticker}?interval=1d&range=1d`;
+          const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+          const res = await fetch(proxy);
+          if (res.ok) {
+            const wrapper = await res.json();
+            const data = JSON.parse(wrapper.contents);
+            const price = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
+            const prev = data?.chart?.result?.[0]?.meta?.previousClose;
+            if (price) {
+              pos.currentPrice = price;
+              pos.change24h = prev ? ((price - prev) / prev * 100) : 0;
+            }
+          }
+        } catch(e) {}
+      }
+    }
+
+    state.updated = new Date().toLocaleTimeString('fr-CH', {hour:'2-digit', minute:'2-digit'});
+    save();
+    render();
+  } catch(e) {
+    console.error('Price fetch error:', e);
+  } finally {
+    icon.classList.remove('spin');
+    btn.disabled = false;
+  }
+}
+
+// ─── Render ───────────────────────────────────────────────────────────────────
+function fmt(n, decimals=2) {
+  if (isNaN(n) || n === null || n === undefined) return '—';
+  return n.toLocaleString('fr-CH', {minimumFractionDigits: decimals, maximumFractionDigits: decimals});
+}
+function fmtCHF(n) { return 'CHF ' + fmt(n, 0); }
+function fmtUSD(n) { return '$' + fmt(n, 2); }
+function deltaClass(n) { return n > 0 ? 'up' : n < 0 ? 'dn' : 'neu'; }
+function deltaSign(n) { return n > 0 ? '+' : ''; }
+
+function render() {
+  renderActions();
+  renderCrypto();
+  renderEpargne();
+  renderSummary();
+}
+
+function renderActions() {
+  const rows = document.getElementById('actions-rows');
+  if (state.actions.length === 0) {
+    rows.innerHTML = '<div class="empty">Aucune position — ajoutes-en une ci-dessous</div>';
+    document.getElementById('alloc-actions').innerHTML = '';
+    return;
+  }
+  rows.innerHTML = state.actions.map(p => {
+    const cur = p.currentPrice || p.buyPrice;
+    const val = p.qty * cur;
+    const pl = (cur - p.buyPrice) * p.qty;
+    const plPct = ((cur - p.buyPrice) / p.buyPrice * 100);
+    const valCHF = val * state.chf_usd;
+    const plCHF = pl * state.chf_usd;
+    const badge = p.kind === 'etf' ? '<span class="pos-badge badge-etf">ETF</span>' : '<span class="pos-badge badge-action">Action</span>';
+    const chg = p.change24h ? `<span class="${deltaClass(p.change24h)}">${deltaSign(p.change24h)}${fmt(p.change24h,1)}%</span>` : '';
+    return `<div class="position actions-grid">
+      <div><div class="pos-name">${p.ticker} ${badge}</div><div class="pos-sub">${p.name} ${chg}</div></div>
+      <div class="cell right">${fmt(p.qty, p.qty % 1 === 0 ? 0 : 4)}</div>
+      <div class="cell right">${fmtUSD(p.buyPrice)}</div>
+      <div class="cell right bold">${fmtUSD(cur)}</div>
+      <div class="cell right">${fmtCHF(valCHF)}</div>
+      <div class="cell right ${deltaClass(pl)}">${deltaSign(pl)}${fmtCHF(plCHF)}<br><span style="font-size:10px;">${deltaSign(plPct)}${fmt(plPct,1)}%</span></div>
+      <div class="cell right"><button class="btn-danger" onclick="removePosition('actions', ${p.id})">×</button></div>
+    </div>`;
+  }).join('');
+
+  // Alloc bars
+  const total = state.actions.reduce((s, p) => s + p.qty * (p.currentPrice || p.buyPrice), 0);
+  const colors = ['#7c6af7','#22c98a','#f0a840','#f05a5a','#a89af9','#5dd3a0'];
+  const alloc = document.getElementById('alloc-actions');
+  alloc.innerHTML = state.actions.map((p, i) => {
+    const val = p.qty * (p.currentPrice || p.buyPrice);
+    const pct = total > 0 ? (val / total * 100) : 0;
+    return `<div class="alloc-row">
+      <div class="alloc-name">${p.ticker}</div>
+      <div class="alloc-track"><div class="alloc-fill" style="width:${pct.toFixed(1)}%;background:${colors[i%colors.length]};"></div></div>
+      <div class="alloc-pct" style="color:${colors[i%colors.length]};">${fmt(pct,1)}%</div>
+    </div>`;
+  }).join('');
+}
+
+function renderCrypto() {
+  const rows = document.getElementById('crypto-rows');
+  if (state.crypto.length === 0) {
+    rows.innerHTML = '<div class="empty">Aucune crypto — ajoutes-en une ci-dessous</div>';
+    document.getElementById('alloc-crypto').innerHTML = '';
+    return;
+  }
+  rows.innerHTML = state.crypto.map(p => {
+    const cur = p.currentPrice || p.buyPrice;
+    const val = p.qty * cur;
+    const pl = (cur - p.buyPrice) * p.qty;
+    const plPct = ((cur - p.buyPrice) / p.buyPrice * 100);
+    const valCHF = val * state.chf_usd;
+    const plCHF = pl * state.chf_usd;
+    const chg = p.change24h ? `<span class="${deltaClass(p.change24h)}">${deltaSign(p.change24h)}${fmt(p.change24h,1)}%</span>` : '';
+    return `<div class="position crypto-grid">
+      <div><div class="pos-name">${p.name} <span class="pos-badge badge-crypto">Crypto</span></div><div class="pos-sub">${p.ticker} ${chg}</div></div>
+      <div class="cell right">${fmt(p.qty, 6)}</div>
+      <div class="cell right">${fmtUSD(p.buyPrice)}</div>
+      <div class="cell right bold">${fmtUSD(cur)}</div>
+      <div class="cell right">${fmtCHF(valCHF)}</div>
+      <div class="cell right ${deltaClass(pl)}">${deltaSign(pl)}${fmtCHF(plCHF)}<br><span style="font-size:10px;">${deltaSign(plPct)}${fmt(plPct,1)}%</span></div>
+      <div class="cell right"><button class="btn-danger" onclick="removePosition('crypto', ${p.id})">×</button></div>
+    </div>`;
+  }).join('');
+
+  const total = state.crypto.reduce((s, p) => s + p.qty * (p.currentPrice || p.buyPrice), 0);
+  const colors = ['#f0a840','#f05a5a','#7c6af7','#22c98a','#a89af9'];
+  const alloc = document.getElementById('alloc-crypto');
+  alloc.innerHTML = state.crypto.map((p, i) => {
+    const val = p.qty * (p.currentPrice || p.buyPrice);
+    const pct = total > 0 ? (val / total * 100) : 0;
+    return `<div class="alloc-row">
+      <div class="alloc-name">${p.name}</div>
+      <div class="alloc-track"><div class="alloc-fill" style="width:${pct.toFixed(1)}%;background:${colors[i%colors.length]};"></div></div>
+      <div class="alloc-pct" style="color:${colors[i%colors.length]};">${fmt(pct,1)}%</div>
+    </div>`;
+  }).join('');
+}
+
+function renderEpargne() {
+  const rows = document.getElementById('epargne-rows');
+  if (state.epargne.length === 0) {
+    rows.innerHTML = '<div class="empty">Aucun compte épargne — ajoutes-en un ci-dessous</div>';
+    return;
+  }
+  rows.innerHTML = state.epargne.map(p => {
+    const interests = p.amount * (p.rate / 100);
+    return `<div class="position epargne-grid">
+      <div><div class="pos-name">${p.name}</div><div class="pos-sub"><span class="pos-badge badge-epargne">Épargne</span></div></div>
+      <div class="cell right bold">${fmtCHF(p.amount)}</div>
+      <div class="cell right up">${fmt(p.rate, 2)}%</div>
+      <div class="cell right up">+${fmtCHF(interests)} /an</div>
+      <div class="cell right"><button class="btn-danger" onclick="removePosition('epargne', ${p.id})">×</button></div>
+    </div>`;
+  }).join('');
+}
+
+function renderSummary() {
+  const actVal = state.actions.reduce((s,p) => s + p.qty*(p.currentPrice||p.buyPrice)*state.chf_usd, 0);
+  const actBuy = state.actions.reduce((s,p) => s + p.qty*p.buyPrice*state.chf_usd, 0);
+  const cryptoVal = state.crypto.reduce((s,p) => s + p.qty*(p.currentPrice||p.buyPrice)*state.chf_usd, 0);
+  const cryptoBuy = state.crypto.reduce((s,p) => s + p.qty*p.buyPrice*state.chf_usd, 0);
+  const epargneVal = state.epargne.reduce((s,p) => s + p.amount, 0);
+  const total = actVal + cryptoVal + epargneVal;
+  const totalBuy = actBuy + cryptoBuy + epargneVal;
+  const pl = total - totalBuy;
+  const plPct = totalBuy > 0 ? (pl / totalBuy * 100) : 0;
+  const count = state.actions.length + state.crypto.length + state.epargne.length;
+
+  // 24h change estimate
+  const dayChg = [
+    ...state.actions.filter(p => p.change24h).map(p => p.qty*(p.currentPrice||p.buyPrice)*state.chf_usd*(p.change24h/100)),
+    ...state.crypto.filter(p => p.change24h).map(p => p.qty*(p.currentPrice||p.buyPrice)*state.chf_usd*(p.change24h/100))
+  ].reduce((s,v) => s+v, 0);
+
+  document.getElementById('total-value').textContent = fmtCHF(total);
+  const td = document.getElementById('total-delta');
+  td.textContent = `${deltaSign(pl)}${fmtCHF(pl)} depuis achat`;
+  td.className = 's-delta ' + deltaClass(pl);
+
+  const tpl = document.getElementById('total-pl');
+  tpl.textContent = `${deltaSign(pl)}${fmtCHF(pl)}`;
+  tpl.className = 's-value sm ' + deltaClass(pl);
+  const tplp = document.getElementById('total-pl-pct');
+  tplp.textContent = `${deltaSign(plPct)}${fmt(plPct,1)}%`;
+  tplp.className = 's-delta ' + deltaClass(pl);
+
+  document.getElementById('count-pos').textContent = count;
+  document.getElementById('last-update').textContent = state.updated ? `màj ${state.updated}` : 'jamais';
+
+  const dc = document.getElementById('day-change');
+  dc.textContent = `${deltaSign(dayChg)}${fmtCHF(dayChg)}`;
+  dc.className = 's-value sm ' + deltaClass(dayChg);
+}
+</script>
+</body>
+</html>
